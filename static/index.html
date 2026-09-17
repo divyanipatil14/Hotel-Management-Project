@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hotel Management System</title>
+    <style>
+        body { font-family: sans-serif; margin: 30px; background-color: #f8fafc; }
+        h1 { color: #1e293b; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 15px; }
+        th, td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; }
+        th { background-color: #f1f5f9; }
+        .available { color: green; font-weight: bold; }
+        .occupied { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>Room List (Basic UI)</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Room No.</th>
+                <th>Type</th>
+                <th>Price (₹)</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="roomTable"></tbody>
+    </table>
+
+    <script>
+        fetch('/api/rooms')
+            .then(res => res.json())
+            .then(rooms => {
+                const table = document.getElementById('roomTable');
+                table.innerHTML = '';
+                rooms.forEach(room => {
+                    const statusClass = room.status === 'Available' ? 'available' : 'occupied';
+                    table.innerHTML += `
+                        <tr>
+                            <td>${room.room_id}</td>
+                            <td>${room.room_type}</td>
+                            <td>₹${room.price}</td>
+                            <td class="${statusClass}">${room.status}</td>
+                        </tr>
+                    `;
+                });
+            });
+    </script>
+</body>
+</html>

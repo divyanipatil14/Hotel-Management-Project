@@ -1,0 +1,20 @@
+[
+  {
+    "room_id": 101,
+    "room_type": "Deluxe",
+    "price": 2500,
+    "status": "Available"
+  },
+  {
+    "room_id": 102,
+    "room_type": "Standard",
+    "price": 1500,
+    "status": "Occupied"
+  },
+  {
+    "room_id": 103,
+    "room_type": "Deluxe",
+    "price": 2500,
+    "status": "Available"
+  }
+]
