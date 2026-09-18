@@ -1,20 +1,50 @@
 [
-  {
-    "room_id": 101,
-    "room_type": "Deluxe",
-    "price": 2500,
-    "status": "Available"
-  },
-  {
-    "room_id": 102,
-    "room_type": "Standard",
-    "price": 1500,
-    "status": "Occupied"
-  },
-  {
-    "room_id": 103,
-    "room_type": "Deluxe",
-    "price": 2500,
-    "status": "Available"
-  }
+    {
+        "room_id": 101,
+        "room_type": "Deluxe",
+        "price": 2500,
+        "status": "Available"
+    },
+    {
+        "room_id": 102,
+        "room_type": "Standard",
+        "price": 1500,
+        "status": "Occupied"
+    },
+    {
+        "room_id": 103,
+        "room_type": "Deluxe",
+        "price": 2500,
+        "status": "Available"
+    },
+    {
+        "room_id": 104,
+        "room_type": "Suite",
+        "price": 4500,
+        "status": "Available"
+    },
+    {
+        "room_id": 105,
+        "room_type": "Standard",
+        "price": 1500,
+        "status": "Occupied"
+    },
+    {
+        "room_id": 106,
+        "room_type": "Deluxe",
+        "price": 2800,
+        "status": "Available"
+    },
+    {
+        "room_id": 107,
+        "room_type": "Suite",
+        "price": 5000,
+        "status": "Occupied"
+    },
+    {
+        "room_id": 108,
+        "room_type": "Single",
+        "price": 1000,
+        "status": "Available"
+    }
 ]

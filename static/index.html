@@ -11,11 +11,20 @@
         th { background-color: #f1f5f9; }
         .available { color: green; font-weight: bold; }
         .occupied { color: red; font-weight: bold; }
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-book { background-color: #22c55e; color: white; }
+        .btn-checkout { background-color: #ef4444; color: white; }
     </style>
 </head>
 <body>
 
-    <h1>Room List (Basic UI)</h1>
+    <h1>Room List</h1>
     <table>
         <thead>
             <tr>
@@ -23,29 +32,50 @@
                 <th>Type</th>
                 <th>Price (₹)</th>
                 <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="roomTable"></tbody>
     </table>
 
     <script>
-        fetch('/api/rooms')
-            .then(res => res.json())
-            .then(rooms => {
-                const table = document.getElementById('roomTable');
-                table.innerHTML = '';
-                rooms.forEach(room => {
-                    const statusClass = room.status === 'Available' ? 'available' : 'occupied';
-                    table.innerHTML += `
-                        <tr>
-                            <td>${room.room_id}</td>
-                            <td>${room.room_type}</td>
-                            <td>₹${room.price}</td>
-                            <td class="${statusClass}">${room.status}</td>
-                        </tr>
-                    `;
+        function loadRooms() {
+            fetch('/api/rooms')
+                .then(res => res.json())
+                .then(rooms => {
+                    const table = document.getElementById('roomTable');
+                    table.innerHTML = '';
+                    rooms.forEach(room => {
+                        const statusClass = room.status === 'Available' ? 'available' : 'occupied';
+                        const isAvailable = room.status === 'Available';
+                        const btnText = isAvailable ? 'Book Room' : 'Check Out';
+                        const btnClass = isAvailable ? 'btn-book' : 'btn-checkout';
+
+                        table.innerHTML += `
+                            <tr>
+                                <td>${room.room_id}</td>
+                                <td>${room.room_type}</td>
+                                <td>₹${room.price}</td>
+                                <td class="${statusClass}">${room.status}</td>
+                                <td>
+                                    <button class="btn ${btnClass}" onclick="toggleStatus(${room.room_id})">
+                                        ${btnText}
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
                 });
+        }
+
+        async function toggleStatus(roomId) {
+            await fetch(`/api/rooms/${roomId}/toggle-status`, {
+                method: 'POST'
             });
+            loadRooms();
+        }
+
+        loadRooms();
     </script>
 </body>
 </html>
