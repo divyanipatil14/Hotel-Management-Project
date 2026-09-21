@@ -21,7 +21,7 @@
         "room_id": 104,
         "room_type": "Suite",
         "price": 4500,
-        "status": "Available"
+        "status": "Occupied"
     },
     {
         "room_id": 105,
@@ -45,6 +45,12 @@
         "room_id": 108,
         "room_type": "Single",
         "price": 1000,
+        "status": "Available"
+    },
+    {
+        "room_id": 109,
+        "room_type": "Standard",
+        "price": 500.0,
         "status": "Available"
     }
 ]

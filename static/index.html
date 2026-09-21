@@ -4,13 +4,45 @@
     <meta charset="UTF-8">
     <title>Hotel Management System</title>
     <style>
-        body { font-family: sans-serif; margin: 30px; background-color: #f8fafc; }
-        h1 { color: #1e293b; }
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 15px; }
-        th, td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; }
+        body { font-family: sans-serif; margin: 30px; background-color: #f8fafc; color: #1e293b; }
+        h1 { margin-bottom: 20px; }
+        .form-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            max-width: 650px;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .form-row input, .form-row select {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 130px;
+        }
+        .btn-add {
+            background-color: #2563eb;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-add:hover { background-color: #1d4ed8; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
         th { background-color: #f1f5f9; }
-        .available { color: green; font-weight: bold; }
-        .occupied { color: red; font-weight: bold; }
+        .available { color: #16a34a; font-weight: bold; }
+        .occupied { color: #dc2626; font-weight: bold; }
+        
         .btn {
             padding: 6px 12px;
             border: none;
@@ -24,7 +56,24 @@
 </head>
 <body>
 
-    <h1>Room List</h1>
+    <h1>Hotel Management System</h1>
+    <div class="form-card">
+        <h3>Add New Room</h3>
+        <form id="addRoomForm" onsubmit="handleAddRoom(event)">
+            <div class="form-row">
+                <input type="number" id="roomId" placeholder="Room No (e.g. 109)" required />
+                <select id="roomType" required>
+                    <option value="" disabled selected>Select Type</option>
+                    <option value="Single">Single</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Deluxe">Deluxe</option>
+                    <option value="Suite">Suite</option>
+                </select>
+                <input type="number" id="roomPrice" placeholder="Price (₹)" min="0" required />
+                <button type="submit" class="btn-add">+ Add Room</button>
+            </div>
+        </form>
+    </div>
     <table>
         <thead>
             <tr>
@@ -46,8 +95,8 @@
                     const table = document.getElementById('roomTable');
                     table.innerHTML = '';
                     rooms.forEach(room => {
-                        const statusClass = room.status === 'Available' ? 'available' : 'occupied';
                         const isAvailable = room.status === 'Available';
+                        const statusClass = isAvailable ? 'available' : 'occupied';
                         const btnText = isAvailable ? 'Book Room' : 'Check Out';
                         const btnClass = isAvailable ? 'btn-book' : 'btn-checkout';
 
@@ -75,6 +124,33 @@
             loadRooms();
         }
 
+        async function handleAddRoom(event) {
+            event.preventDefault();
+
+            const roomId = parseInt(document.getElementById('roomId').value);
+            const roomType = document.getElementById('roomType').value;
+            const price = parseFloat(document.getElementById('roomPrice').value);
+
+            const payload = {
+                room_id: roomId,
+                room_type: roomType,
+                price: price
+            };
+
+            const response = await fetch('/api/rooms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                document.getElementById('addRoomForm').reset();
+                loadRooms();
+            } else {
+                const errorData = await response.json();
+                alert(errorData.detail || "Failed to add room");
+            }
+        }
         loadRooms();
     </script>
 </body>

@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 import json
 import os
 
@@ -9,6 +10,11 @@ from models.room import Room
 app = FastAPI(title="Hotel Management System")
 
 FILE_PATH = "data/room.json"
+
+class RoomCreateRequest(BaseModel):
+    room_id: int
+    room_type: str
+    price: float
 
 def read_rooms():
     if not os.path.exists(FILE_PATH):
@@ -29,6 +35,21 @@ def get_rooms():
         r.status = item["status"]
         room_objects.append(r.to_dict())
     return room_objects
+
+@app.post("/api/rooms")
+def add_room(room_data: RoomCreateRequest):
+    data = read_rooms()
+
+    for item in data:
+        if item["room_id"] == room_data.room_id:
+            raise HTTPException(status_code=400, detail=f"Room {room_data.room_id} already exists!")
+
+    new_room = Room(room_data.room_id, room_data.room_type, room_data.price)
+
+    data.append(new_room.to_dict())
+
+    write_rooms(data)
+    return {"message": "Room added successfully", "room": new_room.to_dict()}
 
 @app.post("/api/rooms/{room_id}/toggle-status")
 def toggle_room_status(room_id: int):
