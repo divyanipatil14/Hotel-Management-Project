@@ -52,5 +52,17 @@
         "room_type": "Standard",
         "price": 500.0,
         "status": "Available"
+    },
+    {
+        "room_id": 123,
+        "room_type": "Single",
+        "price": 123.0,
+        "status": "Occupied"
+    },
+    {
+        "room_id": 1233,
+        "room_type": "Single",
+        "price": 12344.0,
+        "status": "Occupied"
     }
 ]
