@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from services.room_service import RoomService
-from models.room_schema import RoomCreateRequest
+from models.room_schema import RoomCreateRequest, RoomUpdateRequest
 
 router = APIRouter(prefix="/api/rooms", tags=["Rooms"])
 room_service = RoomService()
@@ -17,3 +17,11 @@ def add_room(room_data: RoomCreateRequest):
 @router.post("/{room_id}/toggle-status")
 def toggle_status(room_id: int):
     return room_service.toggle_room_status(room_id)
+
+@router.put("/{room_id}")
+def update_room(room_id: int, update_data: RoomUpdateRequest):
+    return room_service.update_room(room_id, update_data)
+
+@router.delete("/{room_id}")
+def delete_room(room_id: int):
+    return room_service.delete_room(room_id)

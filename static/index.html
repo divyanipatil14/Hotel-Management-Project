@@ -27,7 +27,11 @@
             flex: 1;
             min-width: 130px;
         }
-        .btn-add {
+        .form-row input:disabled {
+            background-color: #e2e8f0;
+            cursor: not-allowed;
+        }
+        .btn-submit {
             background-color: #2563eb;
             color: white;
             padding: 8px 16px;
@@ -36,7 +40,18 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .btn-add:hover { background-color: #1d4ed8; }
+        .btn-submit:hover { background-color: #1d4ed8; }
+        .btn-cancel {
+            background-color: #64748b;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+        }
+        .btn-cancel:hover { background-color: #475569; }
+
         table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
         th { background-color: #f1f5f9; }
@@ -44,24 +59,27 @@
         .occupied { color: #dc2626; font-weight: bold; }
         
         .btn {
-            padding: 6px 12px;
+            padding: 6px 10px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 500;
+            margin-right: 4px;
         }
         .btn-book { background-color: #22c55e; color: white; }
-        .btn-checkout { background-color: #ef4444; color: white; }
+        .btn-checkout { background-color: #f97316; color: white; }
+        .btn-edit { background-color: #3b82f6; color: white; }
+        .btn-delete { background-color: #ef4444; color: white; }
     </style>
 </head>
 <body>
 
     <h1>Hotel Management System</h1>
     <div class="form-card">
-        <h3>Add New Room</h3>
-        <form id="addRoomForm" onsubmit="handleAddRoom(event)">
+        <h3 id="formTitle">Add New Room</h3>
+        <form id="roomForm" onsubmit="handleFormSubmit(event)">
             <div class="form-row">
-                <input type="number" id="roomId" placeholder="Room No (e.g. 109)" required />
+                <input type="number" id="roomId" placeholder="Room No (e.g. 110)" required />
                 <select id="roomType" required>
                     <option value="" disabled selected>Select Type</option>
                     <option value="Single">Single</option>
@@ -70,10 +88,12 @@
                     <option value="Suite">Suite</option>
                 </select>
                 <input type="number" id="roomPrice" placeholder="Price (₹)" min="0" required />
-                <button type="submit" class="btn-add">+ Add Room</button>
+                <button type="submit" id="submitBtn" class="btn-submit">+ Add Room</button>
+                <button type="button" id="cancelBtn" class="btn-cancel" onclick="resetFormToDefault()">Cancel</button>
             </div>
         </form>
     </div>
+
     <table>
         <thead>
             <tr>
@@ -81,13 +101,16 @@
                 <th>Type</th>
                 <th>Price (₹)</th>
                 <th>Status</th>
-                <th>Action</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody id="roomTable"></tbody>
     </table>
 
     <script>
+        let isEditing = false;
+        let editingRoomId = null;
+
         function loadRooms() {
             fetch('/api/rooms')
                 .then(res => res.json())
@@ -97,7 +120,7 @@
                     rooms.forEach(room => {
                         const isAvailable = room.status === 'Available';
                         const statusClass = isAvailable ? 'available' : 'occupied';
-                        const btnText = isAvailable ? 'Book Room' : 'Check Out';
+                        const btnText = isAvailable ? 'Book' : 'Check Out';
                         const btnClass = isAvailable ? 'btn-book' : 'btn-checkout';
 
                         table.innerHTML += `
@@ -107,9 +130,9 @@
                                 <td>₹${room.price}</td>
                                 <td class="${statusClass}">${room.status}</td>
                                 <td>
-                                    <button class="btn ${btnClass}" onclick="toggleStatus(${room.room_id})">
-                                        ${btnText}
-                                    </button>
+                                    <button class="btn ${btnClass}" onclick="toggleStatus(${room.room_id})">${btnText}</button>
+                                    <button class="btn btn-edit" onclick="populateFormForEdit(${room.room_id}, '${room.room_type}', ${room.price})">Edit</button>
+                                    <button class="btn btn-delete" onclick="deleteRoom(${room.room_id})">Delete</button>
                                 </td>
                             </tr>
                         `;
@@ -118,39 +141,98 @@
         }
 
         async function toggleStatus(roomId) {
-            await fetch(`/api/rooms/${roomId}/toggle-status`, {
-                method: 'POST'
-            });
+            await fetch(`/api/rooms/${roomId}/toggle-status`, { method: 'POST' });
             loadRooms();
         }
 
-        async function handleAddRoom(event) {
+        function populateFormForEdit(roomId, roomType, price) {
+            isEditing = true;
+            editingRoomId = roomId;
+
+            document.getElementById('roomId').value = roomId;
+            document.getElementById('roomId').disabled = true;
+            document.getElementById('roomType').value = roomType;
+            document.getElementById('roomPrice').value = price;
+
+            document.getElementById('formTitle').innerText = `Edit Room #${roomId}`;
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = 'Save Changes';
+            submitBtn.style.backgroundColor = '#16a34a';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetFormToDefault() {
+            isEditing = false;
+            editingRoomId = null;
+
+            document.getElementById('roomForm').reset();
+            document.getElementById('roomId').disabled = false;
+            document.getElementById('formTitle').innerText = 'Add New Room';
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = '+ Add Room';
+            submitBtn.style.backgroundColor = '#2563eb';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        async function handleFormSubmit(event) {
             event.preventDefault();
 
-            const roomId = parseInt(document.getElementById('roomId').value);
             const roomType = document.getElementById('roomType').value;
             const price = parseFloat(document.getElementById('roomPrice').value);
 
-            const payload = {
-                room_id: roomId,
-                room_type: roomType,
-                price: price
-            };
+            if (isEditing) {
+                const response = await fetch(`/api/rooms/${editingRoomId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ room_type: roomType, price: price })
+                });
 
-            const response = await fetch('/api/rooms', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                if (response.ok) {
+                    resetFormToDefault();
+                    loadRooms();
+                } else {
+                    const err = await response.json();
+                    alert(err.detail || 'Update failed');
+                }
+            } else {
+                const roomId = parseInt(document.getElementById('roomId').value);
+                const response = await fetch('/api/rooms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ room_id: roomId, room_type: roomType, price: price })
+                });
+
+                if (response.ok) {
+                    resetFormToDefault();
+                    loadRooms();
+                } else {
+                    const err = await response.json();
+                    alert(err.detail || 'Failed to add room');
+                }
+            }
+        }
+
+        async function deleteRoom(roomId) {
+            if (!confirm(`Are you sure you want to delete Room ${roomId}?`)) return;
+
+            const response = await fetch(`/api/rooms/${roomId}`, {
+                method: 'DELETE'
             });
 
             if (response.ok) {
-                document.getElementById('addRoomForm').reset();
+                if (isEditing && editingRoomId === roomId) {
+                    resetFormToDefault();
+                }
                 loadRooms();
             } else {
-                const errorData = await response.json();
-                alert(errorData.detail || "Failed to add room");
+                const err = await response.json();
+                alert(err.detail || 'Delete failed');
             }
         }
+
         loadRooms();
     </script>
 </body>
