@@ -90,4 +90,4 @@ class RoomService:
 
         updated_data = [item for item in data if item["room_id"] != room_id]
         self.repo.save_all(updated_data)
-        return {"message": f"Room {room_id} deleted successfully"}
+        return {"message": f"Room {room_id} deleted successfully"} 
