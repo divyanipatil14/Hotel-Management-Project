@@ -3,19 +3,19 @@
         "room_id": 101,
         "room_type": "Single",
         "price": 1234.0,
-        "status": "Available"
+        "status": "Occupied"
     },
     {
         "room_id": 102,
         "room_type": "Standard",
         "price": 1500,
-        "status": "Occupied"
+        "status": "Available"
     },
     {
         "room_id": 103,
         "room_type": "Deluxe",
-        "price": 2500,
-        "status": "Occupied"
+        "price": 2500.0,
+        "status": "Available"
     },
     {
         "room_id": 104,
@@ -27,7 +27,7 @@
         "room_id": 105,
         "room_type": "Standard",
         "price": 1500,
-        "status": "Occupied"
+        "status": "Available"
     },
     {
         "room_id": 106,
@@ -52,5 +52,17 @@
         "room_type": "Single",
         "price": 12344.0,
         "status": "Available"
+    },
+    {
+        "room_id": 1234,
+        "room_type": "Deluxe",
+        "price": 1234556.0,
+        "status": "Occupied"
+    },
+    {
+        "room_id": 12344,
+        "room_type": "Standard",
+        "price": 45000.0,
+        "status": "Occupied"
     }
 ]
