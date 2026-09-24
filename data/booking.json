@@ -1,0 +1,12 @@
+[
+    {
+        "booking_id": 1,
+        "guest_id": 2,
+        "room_id": 102,
+        "check_in_date": "2026-04-10",
+        "check_out_date": "2026-04-13",
+        "total_days": 3,
+        "total_amount": 4500.0,
+        "status": "Confirmed"
+    }
+]
