@@ -88,3 +88,32 @@ class BookingService:
         self.booking_repo.save_all(bookings)
 
         return new_booking.to_dict()
+
+    def cancel_booking(self, booking_id: int):
+        bookings = self.booking_repo.get_all()
+        rooms = self.room_repo.get_all()
+
+        target_booking = None
+        for b in bookings:
+            if b["booking_id"] == booking_id:
+                target_booking = b
+                break
+
+        if not target_booking:
+            raise HTTPException(status_code=404, detail=f"Booking {booking_id} not found!")
+
+        if target_booking["status"] == "Cancelled":
+            raise HTTPException(status_code=400, detail=f"Booking {booking_id} has already been cancelled!")
+
+        target_booking["status"] = "Cancelled"
+
+        room_id = target_booking["room_id"]
+        for r in rooms:
+            if r["room_id"] == room_id:
+                r["status"] = "Available"
+                break
+
+        self.room_repo.save_all(rooms)
+        self.booking_repo.save_all(bookings)
+
+        return {"message": f"Booking {booking_id} cancelled successfully. Room {room_id} is now Available."}
