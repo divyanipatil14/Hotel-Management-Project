@@ -4,7 +4,7 @@
         "name": "test1",
         "phone": "8889989899",
         "assigned_room_id": 101,
-        "status": "Checked-In"
+        "status": "Checked-Out"
     },
     {
         "guest_id": 2,
@@ -25,13 +25,20 @@
         "name": "nancy",
         "phone": "12351253512",
         "assigned_room_id": 1234,
-        "status": "checked-In"
+        "status": "Checked-Out"
     },
     {
         "guest_id": 5,
         "name": "test2",
         "phone": "123456789",
         "assigned_room_id": 12344,
-        "status": "checked-In"
+        "status": "Checked-Out"
+    },
+    {
+        "guest_id": 6,
+        "name": "rishi bhai",
+        "phone": "123456789",
+        "assigned_room_id": 111,
+        "status": "Checked-Out"
     }
 ]

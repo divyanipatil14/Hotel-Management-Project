@@ -12,7 +12,7 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             margin-bottom: 25px;
-            max-width: 650px;
+            max-width: 750px;
         }
         .form-row {
             display: flex;
@@ -52,7 +52,7 @@
         }
         .btn-cancel:hover { background-color: #475569; }
 
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 30px; }
         th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
         th { background-color: #f1f5f9; }
         .available { color: #16a34a; font-weight: bold; }
@@ -70,12 +70,15 @@
         .btn-checkout { background-color: #f97316; color: white; }
         .btn-edit { background-color: #3b82f6; color: white; }
         .btn-delete { background-color: #ef4444; color: white; }
+        .btn-cancel-booking { background-color: #ef4444; color: white; }
     </style>
 </head>
 <body>
 
     <h1>Hotel Management System</h1>
-    <!-- ROOM SECTION -->
+
+    <!-- 1. ROOM MANAGEMENT SECTION -->
+    <h2>Room Management</h2>
     <div class="form-card">
         <h3 id="formTitle">Add New Room</h3>
         <form id="roomForm" onsubmit="handleFormSubmit(event)">
@@ -108,14 +111,13 @@
         <tbody id="roomTable"></tbody>
     </table>
 
-    <!-- GUEST MANAGEMENT SECTION -->
+    <!-- 2. GUEST MANAGEMENT SECTION -->
     <h2 style="margin-top: 50px;">Guest Management</h2>
-
     <div class="form-card">
         <h3 id="guestFormTitle">Check-In New Guest</h3>
         <form id="guestForm" onsubmit="handleGuestFormSubmit(event)">
             <div class="form-row">
-                <input type="number" id="guestId" placeholder="Guest ID (e.g. 101)" required />
+                <input type="number" id="guestId" placeholder="Guest ID (e.g. 1)" required />
                 <input type="text" id="guestName" placeholder="Full Name" required />
                 <input type="text" id="guestPhone" placeholder="Phone Number" required />
                 <input type="number" id="guestRoomId" placeholder="Room No (e.g. 101)" required />
@@ -139,8 +141,41 @@
         <tbody id="guestTable"></tbody>
     </table>
 
+    <!-- 3. BOOKING MANAGEMENT SECTION -->
+    <h2 style="margin-top: 50px;">Booking Management</h2>
+    <div class="form-card">
+        <h3>Create New Booking</h3>
+        <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
+            <div class="form-row">
+                <input type="number" id="bookingId" placeholder="Booking ID" required />
+                <input type="number" id="bookingGuestId" placeholder="Guest ID" required />
+                <input type="number" id="bookingRoomId" placeholder="Room No" required />
+                <input type="date" id="checkInDate" title="Check-in Date" required />
+                <input type="date" id="checkOutDate" title="Check-out Date" required />
+                <button type="submit" class="btn-submit">+ Confirm Booking</button>
+            </div>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Guest ID</th>
+                <th>Room No</th>
+                <th>Check-In</th>
+                <th>Check-Out</th>
+                <th>Nights</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="bookingTable"></tbody>
+    </table>
+
     <script>
-        // ROOM MODULE LOGIC 
+        // ================= ROOM MODULE LOGIC =================
         let isEditing = false;
         let editingRoomId = null;
 
@@ -266,7 +301,7 @@
             }
         }
 
-        // GUEST MODULE LOGIC
+        // GUEST MODULE LOGIC 
         let isEditingGuest = false;
         let editingGuestId = null;
 
@@ -407,8 +442,91 @@
             }
         }
 
+        // ================= BOOKING MODULE LOGIC =================
+        function loadBookings() {
+            fetch('/api/bookings')
+                .then(res => res.json())
+                .then(bookings => {
+                    const table = document.getElementById('bookingTable');
+                    table.innerHTML = '';
+
+                    if (bookings.length === 0) {
+                        table.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #64748b;">No bookings found</td></tr>`;
+                        return;
+                    }
+
+                    bookings.forEach(booking => {
+                        const isConfirmed = booking.status && booking.status.toLowerCase() === 'confirmed';
+                        const statusColor = isConfirmed ? '#16a34a' : '#ef4444';
+
+                        const actionBtn = isConfirmed 
+                            ? `<button class="btn btn-cancel-booking" onclick="cancelBooking(${booking.booking_id})">Cancel</button>`
+                            : `<span style="color: #94a3b8; font-size: 13px;">Cancelled</span>`;
+
+                        table.innerHTML += `
+                            <tr>
+                                <td>#${booking.booking_id}</td>
+                                <td>Guest #${booking.guest_id}</td>
+                                <td>Room #${booking.room_id}</td>
+                                <td>${booking.check_in_date}</td>
+                                <td>${booking.check_out_date}</td>
+                                <td>${booking.total_days}</td>
+                                <td><strong>₹${booking.total_amount}</strong></td>
+                                <td style="font-weight: bold; color: ${statusColor};">${booking.status}</td>
+                                <td>${actionBtn}</td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(err => console.error("Error loading bookings:", err));
+        }
+
+        async function handleBookingSubmit(event) {
+            event.preventDefault();
+
+            const bookingData = {
+                booking_id: parseInt(document.getElementById('bookingId').value),
+                guest_id: parseInt(document.getElementById('bookingGuestId').value),
+                room_id: parseInt(document.getElementById('bookingRoomId').value),
+                check_in_date: document.getElementById('checkInDate').value,
+                check_out_date: document.getElementById('checkOutDate').value
+            };
+
+            const response = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingData)
+            });
+
+            if (response.ok) {
+                document.getElementById('bookingForm').reset();
+                loadBookings();
+                loadRooms();
+            } else {
+                const err = await response.json();
+                alert(err.detail || "Booking failed!");
+            }
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm(`Are you sure you want to cancel Booking #${bookingId}?`)) return;
+
+            const response = await fetch(`/api/bookings/${bookingId}/cancel`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                loadBookings();
+                loadRooms();
+            } else {
+                const err = await response.json();
+                alert(err.detail || "Cancellation failed!");
+            }
+        }
+
         loadRooms();
         loadGuests();
+        loadBookings();
     </script>
 </body>
-</html>
+</html> 

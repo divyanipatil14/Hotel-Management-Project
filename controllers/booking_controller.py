@@ -14,3 +14,7 @@ def create_booking(booking_data: BookingCreateRequest):
     print("bookings request received data..........")
     created_booking = booking_service.create_booking(booking_data)
     return {"message": "Booking confirmed successfully", "booking": created_booking}
+
+@router.post("/{booking_id}/cancel")
+def cancel_booking(booking_id: int):
+    return booking_service.cancel_booking(booking_id)

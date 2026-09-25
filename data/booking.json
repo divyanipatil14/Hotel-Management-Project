@@ -7,6 +7,16 @@
         "check_out_date": "2026-04-13",
         "total_days": 3,
         "total_amount": 4500.0,
+        "status": "Cancelled"
+    },
+    {
+        "booking_id": 2,
+        "guest_id": 1,
+        "room_id": 104,
+        "check_in_date": "2026-09-26",
+        "check_out_date": "2026-09-29",
+        "total_days": 3,
+        "total_amount": 13500.0,
         "status": "Confirmed"
     }
 ]
